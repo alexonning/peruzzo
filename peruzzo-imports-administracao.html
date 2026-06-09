@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peruzzo Imports — Painel Administrativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f5ede3;--cream-dark:#ecddd0;--wine:#6b1a1a;--wine-light:#8a2424;--wine-dark:#4a1010;--charcoal:#2a2020;--text:#2a1a1a;--muted:#7a6868;--white:#fdfaf7;--shadow:rgba(107,26,26,.12);--green:#2d7a2d;--red:#c0392b;--blue:#1a4a8a;--sidebar:240px}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;background:#f0e8de;color:var(--text);min-height:100vh}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--wine-dark),var(--wine) 60%,#8a3030);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:var(--white);border-radius:12px;padding:48px 44px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.35);text-align:center}
+.login-logo{margin-bottom:28px}
+.login-logo .circle{width:72px;height:72px;background:var(--wine);border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.login-logo .circle svg{width:32px;height:32px;fill:var(--cream)}
+.login-logo .brand{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;letter-spacing:3px;color:var(--wine)}
+.login-logo .sub{font-size:10px;letter-spacing:4px;color:var(--muted);margin-top:2px}
+.login-box h2{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin-bottom:24px;color:var(--charcoal)}
+.form-group{margin-bottom:16px;text-align:left}
+.form-group label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px}
+.form-group input{width:100%;padding:11px 14px;border:1.5px solid var(--cream-dark);border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;background:var(--white);color:var(--text);transition:border-color .2s}
+.form-group input:focus{outline:none;border-color:var(--wine)}
+.login-btn{width:100%;background:var(--wine);color:var(--cream);border:none;padding:13px;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:8px}
+.login-btn:hover{background:var(--wine-dark)}
+.login-error{color:var(--red);font-size:12px;margin-top:10px;display:none}
+
+/* ADMIN */
+#adminShell{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--wine-dark);display:flex;flex-direction:column;z-index:500;box-shadow:4px 0 20px rgba(0,0,0,.2)}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
+.sidebar-logo .dot{width:38px;height:38px;background:var(--cream);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sidebar-logo .dot svg{width:18px;height:18px;fill:var(--wine)}
+.sidebar-logo .txt .b{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;letter-spacing:2px;color:var(--cream);display:block;line-height:1.1}
+.sidebar-logo .txt .s{font-size:8px;letter-spacing:3px;color:rgba(245,237,227,.5);display:block}
+.sidebar-nav{flex:1;padding:16px 0;overflow-y:auto}
+.nav-section{padding:10px 16px 6px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(245,237,227,.35);font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;color:rgba(245,237,227,.7);font-size:13px;font-weight:400;transition:all .2s;border-left:3px solid transparent;text-decoration:none}
+.nav-item svg{width:17px;height:17px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8}
+.nav-item:hover{color:var(--cream);background:rgba(255,255,255,.06)}
+.nav-item.active{color:var(--cream);background:rgba(255,255,255,.1);border-left-color:var(--cream);font-weight:600}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.logout-btn{display:flex;align-items:center;gap:8px;color:rgba(245,237,227,.5);font-size:12px;cursor:pointer;background:none;border:none;font-family:'Jost',sans-serif;transition:color .2s}
+.logout-btn:hover{color:var(--cream)}
+.logout-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2}
+.main-content{margin-left:var(--sidebar);min-height:100vh}
+.topbar{background:var(--white);padding:0 32px;height:64px;display:flex;align-items:center;gap:16px;justify-content:space-between;border-bottom:1px solid var(--cream-dark);position:sticky;top:0;z-index:400;box-shadow:0 2px 8px var(--shadow)}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--charcoal)}
+.topbar-breadcrumb{font-size:12px;color:var(--muted);margin-top:2px}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.topbar-badge{background:var(--cream);border:1px solid var(--cream-dark);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--muted)}
+.page{display:none;padding:32px}.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--white);border-radius:10px;border:1px solid var(--cream-dark);margin-bottom:24px;overflow:hidden}
+.card-header{padding:18px 24px 16px;border-bottom:1px solid var(--cream-dark);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--charcoal)}
+.card-subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+.card-body{padding:24px}
+
+/* FORMS */
+.field-group{margin-bottom:20px}
+.field-label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--wine);font-weight:600;margin-bottom:7px}
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px}
+.field-input,.field-select,.field-textarea{width:100%;padding:10px 14px;border:1.5px solid var(--cream-dark);border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;background:var(--white);color:var(--text);transition:border-color .2s}
+.field-input:focus,.field-select:focus,.field-textarea:focus{outline:none;border-color:var(--wine)}
+.field-textarea{resize:vertical;min-height:80px}
+.field-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a7070' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* BUTTONS */
+.btn{padding:9px 20px;border-radius:6px;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.btn-primary{background:var(--wine);color:var(--cream)}.btn-primary:hover{background:var(--wine-dark)}
+.btn-secondary{background:var(--cream);color:var(--wine);border:1.5px solid var(--wine)}.btn-secondary:hover{background:var(--cream-dark)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#a93226}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#256625}
+.btn-sm{padding:6px 14px;font-size:11px}
+.btn-icon{padding:8px;border-radius:6px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--white);border-radius:10px;padding:20px 22px;border:1px solid var(--cream-dark)}
+.stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--wine);line-height:1}
+.stat-note{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{padding:10px 16px;text-align:left;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:2px solid var(--cream-dark);background:var(--cream);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--cream-dark);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#faf6f1}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.5px}
+.badge-green{background:#e8f5e8;color:var(--green)}.badge-red{background:#fdecea;color:var(--red)}
+.badge-blue{background:#e8eef8;color:var(--blue)}.badge-orange{background:#fef3e2;color:#b8690b}
+.badge-wine{background:#f5e8e8;color:var(--wine)}.badge-novo{background:var(--wine);color:var(--cream)}
+.badge-semi{background:var(--charcoal);color:var(--cream-dark)}
+
+/* IMAGE UPLOAD */
+.image-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:8px}
+.img-slot{aspect-ratio:1;border:2px dashed var(--cream-dark);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:var(--cream)}
+.img-slot:hover{border-color:var(--wine);background:var(--cream-dark)}
+.img-slot svg{width:24px;height:24px;fill:none;stroke:var(--muted);stroke-width:1.5}
+.img-slot span{font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:.5px}
+.img-slot.has-img{border-style:solid;border-color:var(--wine)}
+.img-slot img{width:100%;height:100%;object-fit:cover}
+.img-slot .remove-img{position:absolute;top:3px;right:3px;background:var(--red);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center}
+.img-slot:hover .remove-img{display:flex}
+.img-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* TOGGLE */
+.toggle{width:38px;height:20px;background:var(--cream-dark);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--wine)}
+.toggle-dot{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on .toggle-dot{left:21px}
+
+/* CEP */
+.cep-row{display:grid;grid-template-columns:150px 1fr 100px 110px 36px;gap:10px;align-items:center;margin-bottom:8px}
+.cep-row.header-row{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--cream-dark)}
+.cep-row input,.cep-row select{padding:8px 10px;border:1.5px solid var(--cream-dark);border-radius:5px;font-family:'Jost',sans-serif;font-size:13px;background:var(--white);color:var(--text);width:100%}
+.cep-row input:focus{outline:none;border-color:var(--wine)}
+
+/* PILL MULTISELECT */
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0 4px}
+.pill{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;border:1.5px solid var(--cream-dark);background:var(--white);font-size:13px;cursor:pointer;transition:all .2s;user-select:none;color:var(--text);font-family:'Jost',sans-serif}
+.pill:hover{border-color:var(--wine);color:var(--wine)}
+.pill.selected{background:var(--wine);color:var(--cream);border-color:var(--wine)}
+.pill .cdot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+
+/* VARIANT ACCORDION */
+.variant-item{border:1.5px solid var(--cream-dark);border-radius:8px;overflow:hidden;margin-bottom:12px;transition:border-color .2s}
+.variant-item.expanded{border-color:var(--wine)}
+.variant-header{display:flex;align-items:center;padding:13px 18px;cursor:pointer;background:var(--cream);user-select:none;justify-content:space-between;gap:12px}
+.variant-header-left{display:flex;align-items:center;gap:12px;flex:1}
+.variant-colordot{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(0,0,0,.15);flex-shrink:0}
+.variant-name{font-size:13px;font-weight:600;color:var(--charcoal)}
+.variant-mem{font-size:12px;color:var(--muted)}
+.variant-pricepreview{font-size:13px;color:var(--wine);font-weight:700;white-space:nowrap}
+.variant-chevron{width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2;transition:transform .2s;flex-shrink:0}
+.variant-item.expanded .variant-chevron{transform:rotate(180deg)}
+.variant-body{display:none;padding:20px;border-top:1px solid var(--cream-dark);background:var(--white)}
+.variant-item.expanded .variant-body{display:block}
+.parc-grid{display:grid;grid-template-columns:70px 130px 100px 1fr 36px;gap:8px;align-items:center;margin-bottom:8px}
+.parc-grid-head{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--cream-dark)}
+.parc-input{padding:8px 10px;border:1.5px solid var(--cream-dark);border-radius:5px;font-family:'Jost',sans-serif;font-size:13px;background:var(--white);color:var(--text);width:100%}
+.parc-input:focus{outline:none;border-color:var(--wine)}
+.parc-input:disabled{opacity:.4;background:var(--cream)}
+.add-parc-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--cream-dark);padding:8px 14px;border-radius:6px;color:var(--muted);font-family:'Jost',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;margin-top:8px}
+.add-parc-btn:hover{border-color:var(--wine);color:var(--wine)}
+.add-parc-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(42,16,16,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(3px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--white);border-radius:12px;width:100%;max-width:980px;max-height:92vh;overflow-y:auto;transform:translateY(16px);transition:transform .25s;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-header{background:var(--wine);padding:20px 28px;display:flex;align-items:center;justify-content:space-between;border-radius:12px 12px 0 0;position:sticky;top:0;z-index:10}
+.modal-header h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--cream)}
+.modal-close{background:rgba(255,255,255,.15);border:none;color:var(--cream);width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.modal-close:hover{background:rgba(255,255,255,.25)}
+.modal-body{padding:28px}
+.modal-footer{padding:16px 28px;border-top:1px solid var(--cream-dark);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--white);z-index:10}
+.modal-tabs{display:flex;gap:0;border-bottom:2px solid var(--cream-dark);margin-bottom:24px}
+.modal-tab{padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.modal-tab:hover{color:var(--charcoal)}
+.modal-tab.active{color:var(--wine);border-bottom-color:var(--wine);font-weight:600}
+.modal-tab-content{display:none}.modal-tab-content.active{display:block}
+
+/* COLOR MODAL */
+.color-picker-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.color-preset{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s}
+.color-preset:hover{transform:scale(1.15);border-color:rgba(0,0,0,.3)}
+.color-preset.selected{border-color:var(--wine);transform:scale(1.1)}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--charcoal);color:var(--cream);padding:12px 20px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:10px;max-width:340px;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:slideIn .3s ease}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+.toast svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* VARIANT BUILDER */
+.var-add-bar{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;background:var(--cream);border:1.5px solid var(--cream-dark);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.var-add-bar label{display:block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--wine);font-weight:600;margin-bottom:6px}
+.var-list{display:flex;flex-direction:column;gap:8px}
+.var-list-item{display:flex;align-items:center;gap:12px;background:var(--white);border:1.5px solid var(--cream-dark);border-radius:8px;padding:12px 16px;transition:border-color .15s}
+.var-list-item:hover{border-color:var(--wine-light)}
+.var-list-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(0,0,0,.12);flex-shrink:0}
+.var-list-label{flex:1;font-size:13px;font-weight:600;color:var(--charcoal)}
+.var-list-mem{font-size:12px;color:var(--muted);background:var(--cream);border-radius:12px;padding:2px 10px}
+.var-list-del{background:none;border:1.5px solid var(--cream-dark);color:var(--muted);border-radius:6px;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.var-list-del:hover{background:var(--red);border-color:var(--red);color:#fff}
+.var-list-del svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5}
+.var-empty{text-align:center;padding:28px 16px;color:var(--muted);font-size:13px;border:2px dashed var(--cream-dark);border-radius:8px}
+
+/* MISC */
+.section-divider{height:1px;background:var(--cream-dark);margin:20px 0}
+.required{color:var(--red)}
+.input-prefix{display:flex}
+.input-prefix .prefix{background:var(--cream);border:1.5px solid var(--cream-dark);border-right:none;padding:10px 12px;border-radius:6px 0 0 6px;font-size:14px;color:var(--muted);white-space:nowrap}
+.input-prefix .ifield{border-radius:0 6px 6px 0!important}
+.search-input{padding:9px 14px 9px 38px;border:1.5px solid var(--cream-dark);border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;background:var(--white);color:var(--text);width:240px}
+.search-wrap{position:relative}
+.prod-header-actions{display:flex;gap:10px;align-items:center}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;fill:none;stroke:var(--muted);stroke-width:2;pointer-events:none}
+.empty-state{text-align:center;padding:50px 20px}
+.empty-state svg{width:52px;height:52px;fill:none;stroke:var(--cream-dark);stroke-width:1.5;margin-bottom:14px}
+.empty-state p{font-size:14px;color:var(--muted)}
+.info-box{background:var(--cream);border:1px solid var(--cream-dark);border-left:3px solid var(--wine);border-radius:6px;padding:12px 16px;font-size:13px;color:var(--text);line-height:1.6;margin-bottom:16px}
+.info-box strong{color:var(--wine)}
+
+/* ══════════════════════════════════════════
+   HAMBURGER — always in topbar, hidden desktop
+══════════════════════════════════════════ */
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;flex-direction:column;gap:4px;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+.hamburger:hover{background:var(--cream-dark)}
+.hamburger span{display:block;width:20px;height:2px;background:var(--charcoal);border-radius:2px;transition:all .25s}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+.topbar-left{flex:1;min-width:0}
+
+/* Sidebar overlay */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(42,16,16,.5);z-index:490;backdrop-filter:blur(2px)}
+.sidebar-overlay.visible{display:block}
+
+/* ── TABLET 1024px ── */
+@media(max-width:1024px){
+  :root{--sidebar:200px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .page{padding:20px}
+  .topbar{padding:14px 20px}
+}
+
+/* ── MOBILE 768px ── */
+@media(max-width:768px){
+  /* Sidebar off-canvas */
+  :root{--sidebar:260px}
+  .sidebar{transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:550}
+  .sidebar.open{transform:translateX(0);box-shadow:6px 0 32px rgba(0,0,0,.35)}
+  .main-content{margin-left:0!important}
+
+  /* Topbar: hamburger inside, normal flow */
+  .topbar{padding:0 14px;height:56px;gap:12px}
+  .hamburger{display:flex}
+  .topbar-breadcrumb{display:none}
+  .topbar-badge{display:none}
+  .topbar-title{font-size:18px}
+  .btn-label{display:none}
+
+  /* Pages */
+  .page{padding:14px}
+
+  /* Stats 2-col */
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .stat-card{padding:14px 16px}
+  .stat-value{font-size:24px}
+
+  /* Quick-start: 2×2 */
+  #quickGrid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+
+  /* Grids */
+  .row2,.row3{grid-template-columns:1fr}
+
+  /* Card */
+  .card{margin-bottom:14px}
+  .card-header{padding:13px 14px;flex-wrap:wrap;gap:8px}
+  .card-header > div:first-child{flex:1;min-width:0}
+  .card-body{padding:14px}
+
+  /* Produtos card-header: stack on mobile */
+  #prodCardHeader{flex-direction:column;align-items:stretch;gap:10px;padding:13px 14px}
+  .prod-header-actions{width:100%;display:flex;gap:8px;align-items:center}
+  .prod-header-actions .search-wrap{flex:1;min-width:0}
+  .prod-header-actions .search-input{width:100%}
+  .prod-header-actions .btn{white-space:nowrap;flex-shrink:0}
+
+  /* Cores & Variantes 2-col → 1-col */
+  #coresGrid{grid-template-columns:1fr!important;gap:14px!important}
+
+  /* ── TABELA PRODUTOS: vira cards no mobile ── */
+  #prodTable thead{display:none}
+  #prodTable tbody tr{
+    display:block;
+    background:var(--white);
+    border:1px solid var(--cream-dark);
+    border-radius:8px;
+    margin-bottom:10px;
+    padding:14px;
+    position:relative;
+  }
+  #prodTable tbody tr:hover{background:var(--white)}
+  #prodTable tbody td{
+    display:block;
+    padding:0;
+    border:none;
+    font-size:13px;
+    line-height:1.5;
+  }
+  /* Product name — big */
+  #prodTable tbody td:nth-child(1){
+    font-size:14px;
+    font-weight:600;
+    padding-bottom:6px;
+    padding-right:80px; /* space for action buttons */
+  }
+  /* Condition badge */
+  #prodTable tbody td:nth-child(2){padding-bottom:4px}
+  /* Colors/memories */
+  #prodTable tbody td:nth-child(3){color:var(--muted);font-size:12px;padding-bottom:4px}
+  /* Price */
+  #prodTable tbody td:nth-child(4){color:var(--wine);font-weight:700;font-size:15px;padding-bottom:4px}
+  /* Variants count — hide on mobile */
+  #prodTable tbody td:nth-child(5){display:none}
+  /* Status */
+  #prodTable tbody td:nth-child(6){padding-bottom:4px}
+  /* Actions — absolute top-right */
+  #prodTable tbody td:nth-child(7){
+    position:absolute;
+    top:12px;
+    right:12px;
+    padding:0;
+  }
+
+  /* Other tables: horizontal scroll */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #coresBody tr td, #memoriaBody tr td, #marcasBody tr td, #condicoesBody tr td{font-size:12px;padding:10px 12px}
+
+  /* CEP rows: 2-column stacked */
+  .cep-row:not(.header-row){
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    background:var(--white);
+    border:1px solid var(--cream-dark);
+    border-radius:8px;
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .cep-row:not(.header-row) input:nth-child(1){grid-column:span 2}
+  .cep-row:not(.header-row) input:nth-child(2){grid-column:span 2}
+  .cep-row:not(.header-row) select{grid-column:1}
+  .cep-row:not(.header-row) input:last-of-type{grid-column:2}
+  .cep-row:not(.header-row) button{grid-column:span 2;justify-self:end;width:auto}
+  .cep-row.header-row{display:none}
+
+  /* Parcelamento: simpler 3-col (n, tipo, delete) */
+  .parc-grid:not(.parc-grid-head){display:grid;grid-template-columns:60px 1fr 38px;gap:6px}
+  .parc-grid:not(.parc-grid-head) > *:nth-child(3){display:none}
+  .parc-grid:not(.parc-grid-head) > *:nth-child(4){display:none}
+  .parc-grid.parc-grid-head{grid-template-columns:60px 1fr 38px}
+  .parc-grid.parc-grid-head > *:nth-child(3){display:none}
+  .parc-grid.parc-grid-head > *:nth-child(4){display:none}
+
+  /* Variant add bar: stacked */
+  .var-add-bar{grid-template-columns:1fr;gap:10px}
+  .var-add-bar button{justify-content:center;width:100%}
+
+  /* Variant accordion body */
+  .variant-body{padding:14px}
+  .variant-body .row3{grid-template-columns:1fr}
+
+  /* Modal: bottom sheet */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal-box{
+    max-width:100%;
+    max-height:94vh;
+    border-radius:16px 16px 0 0;
+    display:flex;
+    flex-direction:column;
+  }
+  .modal-header{border-radius:16px 16px 0 0;padding:16px 18px;flex-shrink:0}
+  .modal-header h3{font-size:17px}
+  .modal-body{padding:16px;overflow-y:auto;flex:1}
+  .modal-footer{padding:12px 16px;flex-shrink:0}
+
+  /* Modal tabs: scrollable row */
+  .modal-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap;display:flex;margin-bottom:18px}
+  .modal-tabs::-webkit-scrollbar{display:none}
+  .modal-tab{padding:8px 12px;font-size:12px;flex-shrink:0;white-space:nowrap}
+
+  /* Image grid: 4 cols */
+  .image-grid{grid-template-columns:repeat(4,1fr);gap:8px}
+
+  /* Toast */
+  .toast-container{bottom:0;right:0;left:0;padding:12px;background:transparent}
+  .toast{max-width:100%;width:100%}
+
+  /* Dashboard recent products: 2-col */
+  #dashRecentProducts > div{
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+  }
+}
+
+/* ── SMALL PHONES 420px ── */
+@media(max-width:420px){
+  .login-box{border-radius:0;padding:40px 20px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+  .page{padding:10px}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card{padding:12px}
+  .stat-value{font-size:20px}
+  .stat-label{font-size:10px}
+  .card-header{padding:11px 12px}
+  .card-body{padding:12px}
+  .topbar-title{font-size:16px}
+  .image-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+  #quickGrid{gap:8px!important}
+  .parc-grid:not(.parc-grid-head){grid-template-columns:55px 1fr 36px}
+  .modal-body{padding:12px}
+  #dashRecentProducts > div{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="circle"><svg viewBox="0 0 814 1000" fill="currentColor"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-150.7-103.4C27.8 787.3 0 701.6 0 620.6c0-217.6 141.4-332.7 280.3-332.7 75.6 0 138.7 49.8 185.4 49.8 44.7 0 115.7-52.5 200.7-52.5zm-39.8-220.5c-33.9 40.4-72.5 73.6-124.3 73.6-5.3 0-10.6-.4-15.8-1.2.6-3.2 2.8-13.3 2.8-24.3 0-45.3-23.4-91.1-58.5-120.2-31.5-26.4-73.6-43.7-114.5-43.7-2.3 0-4.6.1-6.9.2.1-3.5.2-6.9.2-10.5C431.3 43 478 0 527.8 0c47.1 0 87.8 26.5 114.3 61.7 22.3 29.6 46.2 85.2 46.2 58.7z"/></svg></div>
+      <div class="brand">PERUZZO</div><div class="sub">IMPORTS · PAINEL ADMIN</div>
+    </div>
+    <h2>Acesso Restrito</h2>
+    <div class="form-group"><label>Usuário</label><input type="text" id="loginUser" placeholder="admin" autocomplete="off"></div>
+    <div class="form-group"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <p class="login-error" id="loginError">Usuário ou senha incorretos.</p>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div id="adminShell">
+  <!-- Sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="dot"><svg viewBox="0 0 814 1000" fill="currentColor"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-150.7-103.4C27.8 787.3 0 701.6 0 620.6c0-217.6 141.4-332.7 280.3-332.7 75.6 0 138.7 49.8 185.4 49.8 44.7 0 115.7-52.5 200.7-52.5zm-39.8-220.5c-33.9 40.4-72.5 73.6-124.3 73.6-5.3 0-10.6-.4-15.8-1.2.6-3.2 2.8-13.3 2.8-24.3 0-45.3-23.4-91.1-58.5-120.2-31.5-26.4-73.6-43.7-114.5-43.7-2.3 0-4.6.1-6.9.2.1-3.5.2-6.9.2-10.5C431.3 43 478 0 527.8 0c47.1 0 87.8 26.5 114.3 61.7 22.3 29.6 46.2 85.2 46.2 58.7z"/></svg></div>
+      <div class="txt"><span class="b">PERUZZO</span><span class="s">IMPORTS</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Principal</div>
+      <a class="nav-item active" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Painel</a>
+      <div class="nav-section">Loja</div>
+      <a class="nav-item" onclick="goTo('config')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações</a>
+      <a class="nav-item" onclick="goTo('produtos')"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Produtos</a>
+      <a class="nav-item" onclick="goTo('cores')"><svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22c4.42 0 8-1.79 8-4s-3.58-4-8-4-8 1.79-8 4 3.58 4 8 4z"/></svg>Cores &amp; Variantes</a>
+      <a class="nav-item" onclick="goTo('frete')"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Fretes &amp; CEPs</a>
+    </nav>
+    <div class="sidebar-footer"><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair</button></div>
+  </aside>
+
+  <main class="main-content" id="mainContent">
+    <div class="topbar">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-left"><div class="topbar-title" id="topbarTitle">Painel</div><div class="topbar-breadcrumb">Peruzzo Imports · Administração</div></div>
+      <div class="topbar-actions">
+        <span class="topbar-badge">👤 admin</span>
+        <a href="peruzzo-imports.html" target="_blank" style="text-decoration:none"><button class="btn btn-secondary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span class="btn-label">Ver Loja</span></button></a>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Produtos Ativos</div><div class="stat-value" id="statProdutos">0</div><div class="stat-note">na loja</div></div>
+        <div class="stat-card"><div class="stat-label">Variantes</div><div class="stat-value" id="statVariantes">0</div><div class="stat-note">combinações cor+memória</div></div>
+        <div class="stat-card"><div class="stat-label">CEPs Cobertos</div><div class="stat-value" id="statCeps">0</div><div class="stat-note">faixas cadastradas</div></div>
+        <div class="stat-card"><div class="stat-label">WhatsApp</div><div class="stat-value" id="statWhats" style="font-size:17px;padding-top:10px">—</div><div class="stat-note">configurado</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Início Rápido</div></div>
+        <div class="card-body">
+          <div id="quickGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+            <div onclick="goTo('config')" style="background:var(--cream);border-radius:8px;padding:20px;cursor:pointer;text-align:center;border:1.5px solid var(--cream-dark);transition:border-color .2s" onmouseover="this.style.borderColor='var(--wine)'" onmouseout="this.style.borderColor='var(--cream-dark)'"><div style="font-size:28px;margin-bottom:8px">⚙️</div><div style="font-weight:600;font-size:13px">Configurações</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Endereço, WhatsApp</div></div>
+            <div onclick="goTo('cores')" style="background:var(--cream);border-radius:8px;padding:20px;cursor:pointer;text-align:center;border:1.5px solid var(--cream-dark);transition:border-color .2s" onmouseover="this.style.borderColor='var(--wine)'" onmouseout="this.style.borderColor='var(--cream-dark)'"><div style="font-size:28px;margin-bottom:8px">🎨</div><div style="font-weight:600;font-size:13px">Cores &amp; Memória</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Variantes globais</div></div>
+            <div onclick="openProductModal()" style="background:var(--cream);border-radius:8px;padding:20px;cursor:pointer;text-align:center;border:1.5px solid var(--cream-dark);transition:border-color .2s" onmouseover="this.style.borderColor='var(--wine)'" onmouseout="this.style.borderColor='var(--cream-dark)'"><div style="font-size:28px;margin-bottom:8px">📱</div><div style="font-weight:600;font-size:13px">Novo Produto</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Cadastrar iPhone</div></div>
+            <div onclick="goTo('frete')" style="background:var(--cream);border-radius:8px;padding:20px;cursor:pointer;text-align:center;border:1.5px solid var(--cream-dark);transition:border-color .2s" onmouseover="this.style.borderColor='var(--wine)'" onmouseout="this.style.borderColor='var(--cream-dark)'"><div style="font-size:28px;margin-bottom:8px">🚚</div><div style="font-weight:600;font-size:13px">Fretes</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Tabela de entrega</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Produtos Recentes</div><button class="btn btn-primary btn-sm" onclick="goTo('produtos')">Ver todos</button></div>
+        <div class="card-body"><div id="dashRecentProducts"><p style="color:var(--muted);font-size:14px">Nenhum produto ainda.</p></div></div>
+      </div>
+    </section>
+
+    <!-- CONFIGURAÇÕES -->
+    <section class="page" id="page-config">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Informações da Loja</div><div class="card-subtitle">Dados e integrações</div></div></div>
+        <div class="card-body">
+          <div class="row2">
+            <div class="field-group"><label class="field-label">Nome da Loja</label><input class="field-input" id="cfgNome" value="Peruzzo Imports"></div>
+            <div class="field-group"><label class="field-label">CNPJ / CPF</label><input class="field-input" id="cfgDoc" placeholder="00.000.000/0000-00"></div>
+          </div>
+          <div class="field-group"><label class="field-label">Endereço</label><input class="field-input" id="cfgEndereco" placeholder="Rua, número – Bairro, Cascavel – PR"></div>
+          <div class="row3">
+            <div class="field-group"><label class="field-label">Cidade</label><input class="field-input" id="cfgCidade" value="Cascavel"></div>
+            <div class="field-group"><label class="field-label">Estado</label><select class="field-select" id="cfgEstado"><option value="PR" selected>Paraná – PR</option><option value="SP">São Paulo – SP</option><option value="SC">Santa Catarina – SC</option><option value="RS">Rio Grande do Sul – RS</option></select></div>
+            <div class="field-group"><label class="field-label">CEP</label><input class="field-input" id="cfgCep" placeholder="85800-000"></div>
+          </div>
+          <div class="section-divider"></div>
+          <div class="row2">
+            <div class="field-group"><label class="field-label">WhatsApp <span class="required">*</span></label><div class="input-prefix"><span class="prefix">+55</span><input class="field-input ifield" id="cfgWhatsapp" placeholder="45 9 9999-9999"></div><p class="field-hint">Apenas números: 45999999999</p></div>
+            <div class="field-group"><label class="field-label">Instagram</label><div class="input-prefix"><span class="prefix">@</span><input class="field-input ifield" id="cfgInstagram" value="peruzzo_imports"></div></div>
+          </div>
+          <div class="field-group"><label class="field-label">Mensagem do topo da loja</label><input class="field-input" id="cfgBanner" value="📍 Entregamos em Cascavel e Região · WhatsApp: (45) 9 9999-9999"></div>
+          <div class="section-divider"></div>
+          <div class="field-group"><label class="field-label">Métodos de Pagamento</label>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="pgPix" checked style="accent-color:var(--wine)"> Pix</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="pgDinheiro" checked style="accent-color:var(--wine)"> Dinheiro</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="pgCredito" checked style="accent-color:var(--wine)"> Cartão de Crédito</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="pgDebito" checked style="accent-color:var(--wine)"> Cartão de Débito</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="pgBoleto" style="accent-color:var(--wine)"> Boleto</label>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="saveConfig()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar Configurações</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section class="page" id="page-produtos">
+      <div class="card">
+        <div class="card-header" id="prodCardHeader">
+          <div><div class="card-title">Produtos</div><div class="card-subtitle" id="prodSubtitle">0 produto(s)</div></div>
+          <div class="prod-header-actions">
+            <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="search-input" placeholder="Buscar..." id="prodSearch" oninput="renderProdTable()"></div>
+            <button class="btn btn-primary" onclick="openProductModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Novo Produto</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Condição</th><th>Cores / Memórias</th><th>Faixa de Preço</th><th>Variantes</th><th>Status</th><th>Ações</th></tr></thead><tbody id="prodTableBody"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CORES & VARIANTES -->
+    <section class="page" id="page-cores">
+      <div id="coresGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Cores</div><div class="card-subtitle">Paleta dos iPhones</div></div><button class="btn btn-primary btn-sm" onclick="openColorModal()">+ Cor</button></div>
+          <div class="card-body" style="padding:0">
+            <table><thead><tr><th>●</th><th>Nome</th><th>Hex</th><th></th></tr></thead><tbody id="coresBody"></tbody></table>
+            <div id="coresEmpty" class="empty-state" style="display:none"><p>Nenhuma cor cadastrada.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Memórias</div><div class="card-subtitle">Capacidades de armazenamento</div></div><button class="btn btn-primary btn-sm" onclick="addMemoria()">+ Memória</button></div>
+          <div class="card-body" style="padding:0"><table><thead><tr><th>Capacidade</th><th>Sigla</th><th>Ativo</th><th></th></tr></thead><tbody id="memoriaBody"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Marcas</div></div><button class="btn btn-primary btn-sm" onclick="addMarca()">+ Marca</button></div>
+          <div class="card-body" style="padding:0"><table><thead><tr><th>Nome</th><th>Ativo</th><th></th></tr></thead><tbody id="marcasBody"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Condições</div></div><button class="btn btn-primary btn-sm" onclick="addCondicao()">+ Condição</button></div>
+          <div class="card-body" style="padding:0"><table><thead><tr><th>Nome</th><th>Badge</th><th>Ativo</th><th></th></tr></thead><tbody id="condicoesBody"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FRETES -->
+    <section class="page" id="page-frete">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><div><div class="card-title">Fretes por CEP</div><div class="card-subtitle">Regiões cobertas</div></div><button class="btn btn-primary" onclick="addCepRow()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova Faixa</button></div>
+        <div class="card-body">
+          <div class="info-box"><strong>Como funciona:</strong> Cada linha cobre um CEP inicial. CEPs não encontrados redirecionam ao WhatsApp.</div>
+          <div class="cep-row header-row"><div>CEP</div><div>Descrição da Região</div><div>Tipo</div><div>Valor (R$)</div><div></div></div>
+          <div id="cepRows"></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn btn-primary" onclick="saveFrete()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Mensagem para CEP não encontrado</div></div>
+        <div class="card-body">
+          <textarea class="field-textarea" id="cepMsgPadrao" rows="3">Não encontramos o frete para o seu CEP. Consulte via WhatsApp para verificar disponibilidade! 😊</textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-primary btn-sm" onclick="saveCepMsg()">Salvar Mensagem</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ═══════════ MODAL PRODUTO ═══════════ -->
+<div class="modal-overlay" id="modalProduto">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalProdTitle">Novo Produto</h3>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchTab('tab-info')">① Informações</div>
+        <div class="modal-tab" onclick="switchTab('tab-fotos')">② Fotos</div>
+        <div class="modal-tab" onclick="switchTab('tab-variantes')">③ Cores &amp; Memórias</div>
+        <div class="modal-tab" onclick="switchTab('tab-precos')">④ Preços &amp; Parcelas</div>
+      </div>
+
+      <!-- TAB 1 -->
+      <div class="modal-tab-content active" id="tab-info">
+        <div class="row3">
+          <div class="field-group"><label class="field-label">Marca <span class="required">*</span></label><select class="field-select" id="pMarca"></select></div>
+          <div class="field-group"><label class="field-label">Modelo <span class="required">*</span></label><input class="field-input" id="pModelo" placeholder="iPhone 16 Pro Max"></div>
+          <div class="field-group"><label class="field-label">Condição <span class="required">*</span></label><select class="field-select" id="pCondicao"></select></div>
+        </div>
+        <div class="row2">
+          <div class="field-group"><label class="field-label">Status</label><select class="field-select" id="pStatus"><option value="ativo">Ativo (visível)</option><option value="inativo">Inativo (oculto)</option><option value="vendido">Vendido</option></select></div>
+          <div class="field-group"><label class="field-label">Frete Grátis (padrão)?</label><div style="margin-top:10px;display:flex;align-items:center;gap:10px"><div class="toggle" id="freightToggle" onclick="toggleFreight()"><div class="toggle-dot"></div></div><span id="freightLabel" style="font-size:13px">Não</span></div><p class="field-hint">Pode ser sobrescrito por variante na aba ④</p></div>
+        </div>
+        <div class="field-group"><label class="field-label">Descrição</label><textarea class="field-textarea" id="pDescricao" placeholder="iPhone com garantia Apple..."></textarea></div>
+        <div class="field-group"><label class="field-label">Tags de Busca</label><div id="tagsContainer" onclick="document.getElementById('tagInput').focus()" style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;padding:8px 12px;border:1.5px solid var(--cream-dark);border-radius:6px;background:var(--white);min-height:44px;cursor:text;transition:border-color .2s"></div><p class="field-hint">Pressione Enter para adicionar tag</p></div>
+      </div>
+
+      <!-- TAB 2 -->
+      <div class="modal-tab-content" id="tab-fotos">
+        <div class="field-group"><label class="field-label">Fotos do Produto (até 8)</label><div class="image-grid" id="imageGrid"></div><p class="field-hint">Clique para adicionar. A primeira é a principal.</p></div>
+      </div>
+
+      <!-- TAB 3 — MATRIZ DE VARIANTES -->
+      <!-- TAB 3 — CADASTRO DE VARIANTES -->
+      <div class="modal-tab-content" id="tab-variantes">
+        <div class="var-add-bar">
+          <div>
+            <label>Cor</label>
+            <select class="field-select" id="varAddCor" style="background-color:var(--white)"></select>
+          </div>
+          <div>
+            <label>Memória</label>
+            <select class="field-select" id="varAddMem" style="background-color:var(--white)"></select>
+          </div>
+          <button class="btn btn-primary" onclick="addVariante()" style="white-space:nowrap;height:42px;align-self:flex-end">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar
+          </button>
+        </div>
+        <div class="var-list" id="varList"></div>
+      </div>
+
+      <!-- TAB 4 -->
+      <div class="modal-tab-content" id="tab-precos">
+        <div class="info-box">Cada combinação <strong>cor + memória</strong> tem preço à vista, no cartão e parcelamento próprios — igual ao Mercado Livre.</div>
+        <div id="variantePriceList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeProductModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="saveProduct()"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Salvar Produto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COR -->
+<div class="modal-overlay" id="modalCor">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-header"><h3>Cadastrar Cor</h3><button class="modal-close" onclick="closeColorModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field-group"><label class="field-label">Nome <span class="required">*</span></label><input class="field-input" id="corNome" placeholder="Preto Meia-Noite"></div>
+      <div class="field-group"><label class="field-label">Cor</label><div style="display:flex;gap:10px;align-items:center"><input type="color" id="corHex" value="#1a1a1a" style="width:48px;height:40px;border:none;border-radius:6px;cursor:pointer" oninput="document.getElementById('corHexText').value=this.value"><input class="field-input" id="corHexText" value="#1a1a1a" style="flex:1" oninput="document.getElementById('corHex').value=this.value"></div></div>
+      <div class="field-group"><label class="field-label">Predefinidas Apple</label>
+        <div class="color-picker-row">
+          <div class="color-preset" style="background:#1a1a1a" onclick="selPreset('#1a1a1a','Preto Meia-Noite')" title="Preto Meia-Noite"></div>
+          <div class="color-preset" style="background:#f5f5f0;border:1px solid #ccc" onclick="selPreset('#f5f5f0','Estelar')" title="Estelar"></div>
+          <div class="color-preset" style="background:#e8d5b0" onclick="selPreset('#e8d5b0','Dourado')" title="Dourado"></div>
+          <div class="color-preset" style="background:#4a7c9e" onclick="selPreset('#4a7c9e','Azul')" title="Azul"></div>
+          <div class="color-preset" style="background:#b5c5d5" onclick="selPreset('#b5c5d5','Titânio Natural')" title="Titânio Natural"></div>
+          <div class="color-preset" style="background:#3a3a3a" onclick="selPreset('#3a3a3a','Titânio Preto')" title="Titânio Preto"></div>
+          <div class="color-preset" style="background:#c4a882" onclick="selPreset('#c4a882','Titânio Deserto')" title="Titânio Deserto"></div>
+          <div class="color-preset" style="background:#7a6e8a" onclick="selPreset('#7a6e8a','Roxo')" title="Roxo"></div>
+          <div class="color-preset" style="background:#c5321e" onclick="selPreset('#c5321e','Vermelho')" title="Vermelho"></div>
+          <div class="color-preset" style="background:#4a7a4a" onclick="selPreset('#4a7a4a','Verde Alpino')" title="Verde Alpino"></div>
+          <div class="color-preset" style="background:#f0e0d0" onclick="selPreset('#f0e0d0','Rosa')" title="Rosa"></div>
+          <div class="color-preset" style="background:#a0a0a0" onclick="selPreset('#a0a0a0','Prateado')" title="Prateado"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeColorModal()">Cancelar</button><button class="btn btn-primary" onclick="saveColor()">Salvar Cor</button></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ══════════════════════
+// STATE
+// ══════════════════════
+let ST = {
+  config:{ nome:'Peruzzo Imports',doc:'',endereco:'',cidade:'Cascavel',estado:'PR',cep:'',whatsapp:'',instagram:'peruzzo_imports',banner:'📍 Entregamos em Cascavel e Região · WhatsApp: (45) 9 9999-9999',pagamentos:{pix:true,dinheiro:true,credito:true,debito:true,boleto:false} },
+  produtos:[],
+  cores:[{id:u(),nome:'Preto Meia-Noite',hex:'#1a1a1a'},{id:u(),nome:'Estelar',hex:'#f5f5f0'},{id:u(),nome:'Titânio Natural',hex:'#b5c5d5'},{id:u(),nome:'Titânio Preto',hex:'#3a3a3a'}],
+  memorias:[{id:u(),cap:'128 GB',sigla:'128gb',ativo:true},{id:u(),cap:'256 GB',sigla:'256gb',ativo:true},{id:u(),cap:'512 GB',sigla:'512gb',ativo:true},{id:u(),cap:'1 TB',sigla:'1tb',ativo:false}],
+  marcas:[{id:u(),nome:'Apple',ativo:true},{id:u(),nome:'Samsung',ativo:false}],
+  condicoes:[{id:u(),nome:'Lacrado',badge:'badge-novo',ativo:true},{id:u(),nome:'Semi Novo',badge:'badge-semi',ativo:true}],
+  frete:{ faixas:[{id:u(),cep:'85800-000',desc:'Cascavel – PR',tipo:'gratis',valor:'0'},{id:u(),cep:'85900-000',desc:'Região de Cascavel',tipo:'fixo',valor:'15'}], msg:'Não encontramos o frete para o seu CEP. Consulte via WhatsApp! 😊' }
+};
+
+// Editing
+let editId=null, prodImgs=[], prodTags=[], varianteData={}, freightOn=false;
+
+function u(){ return Date.now().toString(36)+Math.random().toString(36).substr(2,5) }
+function g(id){ return document.getElementById(id) }
+function gv(id){ return (g(id)||{}).value||'' }
+function sv(id,v){ const el=g(id); if(el) el.value=v||'' }
+function fmtBRL(v){ return parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2}) }
+
+function loadST(){ const s=localStorage.getItem('pi_admin'); if(s){ try{ ST=JSON.parse(s) }catch(e){} } }
+function saveST(){ localStorage.setItem('pi_admin',JSON.stringify(ST)); updateDash() }
+
+// ══════════════════════
+// AUTH
+// ══════════════════════
+function doLogin(){
+  if(gv('loginUser').trim()==='admin' && gv('loginPass')==='peruzzo2025'){
+    g('loginScreen').style.display='none'; g('adminShell').style.display='block'; boot();
+  } else { g('loginError').style.display='block'; sv('loginPass','') }
+}
+function doLogout(){ g('adminShell').style.display='none'; g('loginScreen').style.display='flex'; sv('loginPass','') }
+
+// ══════════════════════
+// NAV
+// ══════════════════════
+const pgNames={ dashboard:'Painel',config:'Configurações',produtos:'Produtos',cores:'Cores & Variantes',frete:'Fretes & CEPs' };
+function goTo(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.remove('active'));
+  g('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(a=>{ if((a.getAttribute('onclick')||'').includes("'"+p+"'")) a.classList.add('active') });
+  g('topbarTitle').textContent=pgNames[p]||p;
+  if(p==='produtos') renderProdTable();
+  if(p==='cores') renderCoresTabs();
+  if(p==='frete') renderCepRows();
+  if(p==='config') loadCfgForm();
+  if(p==='dashboard') updateDash();
+}
+function boot(){ loadST(); loadCfgForm(); renderCoresTabs(); renderCepRows(); renderProdTable(); updateDash(); buildImgSlots() }
+
+// ══════════════════════
+// DASHBOARD
+// ══════════════════════
+function updateDash(){
+  g('statProdutos').textContent=ST.produtos.filter(p=>p.status==='ativo').length;
+  g('statVariantes').textContent=ST.produtos.reduce((a,p)=>a+Object.keys(p.variantes||{}).length,0);
+  g('statCeps').textContent=ST.frete.faixas.length;
+  g('statWhats').textContent=ST.config.whatsapp||'—';
+  const rec=ST.produtos.slice(-4).reverse();
+  const el=g('dashRecentProducts');
+  if(!rec.length){ el.innerHTML='<p style="color:var(--muted);font-size:14px">Nenhum produto ainda.</p>'; return }
+  el.innerHTML='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">'+rec.map(p=>{
+    const vks=Object.keys(p.variantes||{});
+    const ps=vks.map(k=>p.variantes[k].precoVista||0).filter(Boolean);
+    return `<div style="background:var(--cream);border-radius:8px;padding:14px;border:1px solid var(--cream-dark)"><div style="font-size:11px;color:var(--wine);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">${p.marca}</div><div style="font-weight:600;font-size:14px">${p.modelo}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${vks.length} variante(s)</div><div style="font-size:16px;font-weight:700;color:var(--wine);margin-top:6px">${ps.length?'R$ '+fmtBRL(Math.min(...ps)):'—'}</div></div>`
+  }).join('')+'</div>';
+}
+
+// ══════════════════════
+// CONFIG
+// ══════════════════════
+function loadCfgForm(){
+  const c=ST.config;
+  sv('cfgNome',c.nome); sv('cfgDoc',c.doc); sv('cfgEndereco',c.endereco);
+  sv('cfgCidade',c.cidade); sv('cfgCep',c.cep); sv('cfgWhatsapp',c.whatsapp);
+  sv('cfgInstagram',c.instagram); sv('cfgBanner',c.banner);
+  g('cfgEstado').value=c.estado||'PR';
+  ['Pix','Dinheiro','Credito','Debito','Boleto'].forEach(k=>{ const el=g('pg'+k); if(el) el.checked=c.pagamentos[k.toLowerCase()]??false });
+}
+function saveConfig(){
+  ST.config={ nome:gv('cfgNome'),doc:gv('cfgDoc'),endereco:gv('cfgEndereco'),cidade:gv('cfgCidade'),estado:g('cfgEstado').value,cep:gv('cfgCep'),whatsapp:gv('cfgWhatsapp').replace(/\D/g,''),instagram:gv('cfgInstagram'),banner:gv('cfgBanner'),pagamentos:{pix:g('pgPix').checked,dinheiro:g('pgDinheiro').checked,credito:g('pgCredito').checked,debito:g('pgDebito').checked,boleto:g('pgBoleto').checked} };
+  saveST(); toast('Configurações salvas!','success');
+}
+
+// ══════════════════════
+// CORES/MEMS TABLES
+// ══════════════════════
+const delIco='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>';
+function renderCoresTabs(){
+  const cb=g('coresBody'), ce=g('coresEmpty');
+  if(!ST.cores.length){ cb.innerHTML=''; ce.style.display='block' }
+  else{ ce.style.display='none'; cb.innerHTML=ST.cores.map(c=>`<tr><td><div style="width:22px;height:22px;border-radius:50%;background:${c.hex};border:1px solid rgba(0,0,0,.15);display:inline-block"></div></td><td>${c.nome}</td><td><code style="font-size:11px;background:var(--cream);padding:2px 7px;border-radius:4px">${c.hex}</code></td><td><button class="btn btn-danger btn-sm btn-icon" onclick="delCor('${c.id}')">${delIco}</button></td></tr>`).join('') }
+  g('memoriaBody').innerHTML=ST.memorias.map(m=>`<tr><td>${m.cap}</td><td><code style="font-size:11px;background:var(--cream);padding:2px 7px;border-radius:4px">${m.sigla}</code></td><td><div class="toggle ${m.ativo?'on':''}" onclick="togMem('${m.id}')"><div class="toggle-dot"></div></div></td><td><button class="btn btn-danger btn-sm btn-icon" onclick="delMem('${m.id}')">${delIco}</button></td></tr>`).join('');
+  g('marcasBody').innerHTML=ST.marcas.map(m=>`<tr><td>${m.nome}</td><td><div class="toggle ${m.ativo?'on':''}" onclick="togMarca('${m.id}')"><div class="toggle-dot"></div></div></td><td><button class="btn btn-danger btn-sm btn-icon" onclick="delMarca('${m.id}')">${delIco}</button></td></tr>`).join('');
+  g('condicoesBody').innerHTML=ST.condicoes.map(c=>`<tr><td>${c.nome}</td><td><span class="badge ${c.badge}">${c.nome}</span></td><td><div class="toggle ${c.ativo?'on':''}" onclick="togCond('${c.id}')"><div class="toggle-dot"></div></div></td><td><button class="btn btn-danger btn-sm btn-icon" onclick="delCond('${c.id}')">${delIco}</button></td></tr>`).join('');
+}
+function addMemoria(){ const c=prompt('Capacidade (ex: 128 GB):'); if(!c) return; const s=prompt('Sigla (ex: 128gb):'); if(!s) return; ST.memorias.push({id:u(),cap:c.trim(),sigla:s.trim().toLowerCase(),ativo:true}); saveST(); renderCoresTabs() }
+function togMem(id){ const m=ST.memorias.find(x=>x.id===id); if(m) m.ativo=!m.ativo; saveST(); renderCoresTabs() }
+function delMem(id){ if(!confirm('Remover?')) return; ST.memorias=ST.memorias.filter(x=>x.id!==id); saveST(); renderCoresTabs() }
+function addMarca(){ const n=prompt('Nome:'); if(!n) return; ST.marcas.push({id:u(),nome:n.trim(),ativo:true}); saveST(); renderCoresTabs() }
+function togMarca(id){ const m=ST.marcas.find(x=>x.id===id); if(m) m.ativo=!m.ativo; saveST(); renderCoresTabs() }
+function delMarca(id){ if(!confirm('Remover?')) return; ST.marcas=ST.marcas.filter(x=>x.id!==id); saveST(); renderCoresTabs() }
+function addCondicao(){ const n=prompt('Nome:'); if(!n) return; ST.condicoes.push({id:u(),nome:n.trim(),badge:'badge-blue',ativo:true}); saveST(); renderCoresTabs() }
+function togCond(id){ const c=ST.condicoes.find(x=>x.id===id); if(c) c.ativo=!c.ativo; saveST(); renderCoresTabs() }
+function delCond(id){ if(!confirm('Remover?')) return; ST.condicoes=ST.condicoes.filter(x=>x.id!==id); saveST(); renderCoresTabs() }
+
+// COR MODAL
+function openColorModal(){ sv('corNome',''); g('corHex').value='#1a1a1a'; sv('corHexText','#1a1a1a'); g('modalCor').classList.add('open') }
+function closeColorModal(){ g('modalCor').classList.remove('open') }
+function selPreset(hex,nome){ g('corHex').value=hex; sv('corHexText',hex); if(!gv('corNome')) sv('corNome',nome); document.querySelectorAll('.color-preset').forEach(el=>el.classList.toggle('selected',el.title===nome)) }
+function saveColor(){
+  const nome=gv('corNome').trim(), hex=gv('corHexText').trim()||g('corHex').value;
+  if(!nome){ toast('Informe o nome.','error'); return }
+  if(ST.cores.find(c=>c.nome.toLowerCase()===nome.toLowerCase())){ toast('Já existe.','error'); return }
+  ST.cores.push({id:u(),nome,hex}); saveST(); renderCoresTabs(); closeColorModal(); toast('"'+nome+'" adicionada!','success');
+}
+function delCor(id){ if(!confirm('Remover?')) return; ST.cores=ST.cores.filter(c=>c.id!==id); saveST(); renderCoresTabs() }
+
+// ══════════════════════
+// FRETES
+// ══════════════════════
+function renderCepRows(){
+  g('cepRows').innerHTML=ST.frete.faixas.map(f=>`<div class="cep-row" id="cr_${f.id}"><input value="${f.cep||''}" placeholder="00000-000" oninput="upFrete('${f.id}','cep',this.value)"><input value="${f.desc||''}" placeholder="Descrição" oninput="upFrete('${f.id}','desc',this.value)"><select onchange="upFrete('${f.id}','tipo',this.value);renderCepRows()"><option value="gratis" ${f.tipo==='gratis'?'selected':''}>Grátis</option><option value="fixo" ${f.tipo==='fixo'?'selected':''}>Fixo</option><option value="consultar" ${f.tipo==='consultar'?'selected':''}>Consultar</option></select><input value="${f.valor||0}" type="number" ${f.tipo!=='fixo'?'disabled style="opacity:.4"':''} oninput="upFrete('${f.id}','valor',this.value)"><button class="btn btn-danger btn-sm btn-icon" onclick="delFrete('${f.id}')">${delIco}</button></div>`).join('');
+  sv('cepMsgPadrao',ST.frete.msg);
+}
+function addCepRow(){ ST.frete.faixas.push({id:u(),cep:'',desc:'',tipo:'gratis',valor:'0'}); renderCepRows() }
+function upFrete(id,f,v){ const x=ST.frete.faixas.find(i=>i.id===id); if(x) x[f]=v }
+function delFrete(id){ ST.frete.faixas=ST.frete.faixas.filter(x=>x.id!==id); saveST(); renderCepRows() }
+function saveFrete(){ saveST(); toast('Fretes salvos!','success') }
+function saveCepMsg(){ ST.frete.msg=gv('cepMsgPadrao'); saveST(); toast('Mensagem salva!','success') }
+
+// ══════════════════════
+// PRODUTO TABLE
+// ══════════════════════
+function renderProdTable(){
+  const q=(gv('prodSearch')).toLowerCase();
+  const list=ST.produtos.filter(p=>!q||p.modelo.toLowerCase().includes(q)||p.marca.toLowerCase().includes(q));
+  g('prodSubtitle').textContent=ST.produtos.length+' produto(s)';
+  const tb=g('prodTableBody');
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="7"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><p>Nenhum produto. Clique em <strong>Novo Produto</strong>.</p></div></td></tr>`; return }
+  tb.innerHTML=list.map(p=>{
+    const vks=Object.keys(p.variantes||{});
+    const ps=vks.map(k=>parseFloat(p.variantes[k].precoVista)||0).filter(Boolean);
+    const mn=ps.length?Math.min(...ps):0, mx=ps.length?Math.max(...ps):0;
+    const pr=ps.length?(mn===mx?'R$ '+fmtBRL(mn):'R$ '+fmtBRL(mn)+' – '+fmtBRL(mx)):'—';
+    const sc=p.status==='ativo'?'badge-green':p.status==='vendido'?'badge-red':'badge-orange';
+    const sl={ativo:'Ativo',inativo:'Inativo',vendido:'Vendido'}[p.status]||p.status;
+    const cIds=[...new Set(vks.map(k=>k.split('_')[0]))];
+    const mIds=[...new Set(vks.map(k=>k.split('_')[1]))];
+    const cdots=cIds.map(id=>{ const c=ST.cores.find(x=>x.id===id); return c?`<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.hex};border:1px solid rgba(0,0,0,.15);margin-right:2px" title="${c.nome}"></span>`:'' }).join('');
+    const mcaps=mIds.map(id=>{ const m=ST.memorias.find(x=>x.id===id); return m?m.cap:'' }).filter(Boolean).join(', ');
+    return `<tr><td><div style="font-weight:600;font-size:13.5px">${p.marca} ${p.modelo}</div><div style="font-size:11px;color:var(--muted)">${(p.tags||[]).slice(0,3).join(', ')}</div></td><td><span class="badge ${p.condicaoBadge||'badge-blue'}">${p.condicao}</span></td><td>${cdots}<br><span style="font-size:11px;color:var(--muted)">${mcaps}</span></td><td style="font-weight:700;color:var(--wine)">${pr}</td><td><span style="font-size:12px;color:var(--muted)">${vks.length}</span></td><td><span class="badge ${sc}">${sl}</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-secondary btn-sm btn-icon" title="Editar" onclick="editProd('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="delProd('${p.id}')">${delIco}</button></div></td></tr>`;
+  }).join('');
+}
+function delProd(id){ if(!confirm('Excluir?')) return; ST.produtos=ST.produtos.filter(p=>p.id!==id); saveST(); renderProdTable(); toast('Excluído.','success') }
+function editProd(id){ const p=ST.produtos.find(x=>x.id===id); if(p) openProductModal(p) }
+
+// ══════════════════════
+// PRODUCT MODAL
+// ══════════════════════
+function openProductModal(prod=null){
+  editId=prod?prod.id:null;
+  prodImgs=prod?(prod.images||[]):[];
+  prodTags=prod?(prod.tags||[]):[];
+  varianteData=prod?JSON.parse(JSON.stringify(prod.variantes||{})):{};
+  freightOn=prod?!!prod.freteGratis:false;
+
+  g('modalProdTitle').textContent=prod?'Editar Produto':'Novo Produto';
+  g('pMarca').innerHTML=ST.marcas.filter(m=>m.ativo).map(m=>`<option value="${m.nome}">${m.nome}</option>`).join('');
+  g('pCondicao').innerHTML=ST.condicoes.filter(c=>c.ativo).map(c=>`<option value="${c.nome}" data-badge="${c.badge}">${c.nome}</option>`).join('');
+
+  if(prod){
+    sv('pModelo',prod.modelo); sv('pDescricao',prod.descricao||'');
+    g('pMarca').value=prod.marca; g('pCondicao').value=prod.condicao;
+    g('pStatus').value=prod.status||'ativo';
+  } else { sv('pModelo',''); sv('pDescricao',''); g('pStatus').value='ativo' }
+
+  g('freightToggle').className='toggle'+(freightOn?' on':'');
+  g('freightLabel').textContent=freightOn?'Sim':'Não';
+
+  switchTab('tab-info');
+  buildImgSlots(); renderTagsUI(); renderVarList(); renderVarPrices();
+  g('modalProduto').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeProductModal(){ g('modalProduto').classList.remove('open'); document.body.style.overflow='' }
+
+function switchTab(id){
+  document.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
+  g(id).classList.add('active');
+  const i={'tab-info':0,'tab-fotos':1,'tab-variantes':2,'tab-precos':3}[id];
+  document.querySelectorAll('.modal-tab')[i]?.classList.add('active');
+  if(id==='tab-variantes'){ renderVarList() }
+  if(id==='tab-precos') renderVarPrices();
+}
+
+// IMAGES
+function buildImgSlots(){
+  const grid=g('imageGrid'); grid.innerHTML='';
+  for(let i=0;i<8;i++){
+    const s=document.createElement('div');
+    s.className='img-slot'+(prodImgs[i]?' has-img':'');
+    s.innerHTML=prodImgs[i]?`<img src="${prodImgs[i]}" alt=""><button class="remove-img" onclick="remImg(${i},event)">×</button>`:`<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>${i===0?'Principal':'Foto '+(i+1)}</span><input type="file" accept="image/*" onchange="addImg(${i},event)">`;
+    grid.appendChild(s);
+  }
+}
+function addImg(i,e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ prodImgs[i]=ev.target.result; buildImgSlots() }; r.readAsDataURL(f) }
+function remImg(i,e){ e.stopPropagation(); prodImgs.splice(i,1); buildImgSlots() }
+
+// TAGS
+function renderTagsUI(){
+  const c=g('tagsContainer');
+  const inp=document.createElement('input');
+  inp.id='tagInput'; inp.placeholder='Digite e pressione Enter...';
+  inp.style.cssText='border:none;outline:none;background:transparent;font-family:Jost,sans-serif;font-size:13px;color:var(--text);min-width:100px;flex:1';
+  inp.addEventListener('keydown',e=>{ if(e.key!=='Enter'&&e.key!==',') return; e.preventDefault(); const v=e.target.value.trim().toLowerCase(); if(v&&!prodTags.includes(v)){ prodTags.push(v); renderTagsUI() } else e.target.value='' });
+  c.innerHTML=prodTags.map(t=>`<span style="background:var(--cream);border:1px solid var(--cream-dark);border-radius:20px;padding:3px 10px 3px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px">${t}<button onclick="remTag('${t}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1;padding:0">×</button></span>`).join('');
+  c.appendChild(inp);
+}
+function remTag(t){ prodTags=prodTags.filter(x=>x!==t); renderTagsUI() }
+
+function toggleFreight(){ freightOn=!freightOn; g('freightToggle').className='toggle'+(freightOn?' on':''); g('freightLabel').textContent=freightOn?'Sim':'Não' }
+
+// ══════════════════════════════════════
+// VARIANTES — LISTA cor + memória
+// varianteData = { "corId_memId": { precoVista, precoCartao, freteGratis, parcelas[] } }
+// ══════════════════════════════════════
+
+function populateVarSelects(){
+  const corSel = g('varAddCor');
+  const memSel = g('varAddMem');
+  if(!corSel || !memSel) return;
+  corSel.innerHTML = ST.cores.length
+    ? ST.cores.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')
+    : '<option value="">— sem cores —</option>';
+  memSel.innerHTML = ST.memorias.filter(m=>m.ativo).length
+    ? ST.memorias.filter(m=>m.ativo).map(m => `<option value="${m.id}">${m.cap}</option>`).join('')
+    : '<option value="">— sem memórias —</option>';
+}
+
+function renderVarList(){
+  populateVarSelects();
+  const list = g('varList');
+  const ks = Object.keys(varianteData);
+  if(!ks.length){
+    list.innerHTML = '<div class="var-empty">Nenhuma variante adicionada ainda.<br>Selecione a cor e a memória acima e clique em <strong>Adicionar</strong>.</div>';
+    return;
+  }
+  list.innerHTML = ks.map((key, idx) => {
+    const [cId, mId] = key.split('_');
+    const cor = ST.cores.find(c => c.id === cId) || {nome:'?', hex:'#ccc'};
+    const mem = ST.memorias.find(m => m.id === mId) || {cap:'?'};
+    const v = varianteData[key];
+    const hasPrice = v.precoVista || v.precoCartao;
+    return `<div class="var-list-item">
+      <span class="var-list-dot" style="background:${cor.hex}"></span>
+      <span class="var-list-label">${cor.nome}</span>
+      <span class="var-list-mem">${mem.cap}</span>
+      ${hasPrice ? `<span style="font-size:12px;color:var(--wine);font-weight:700">R$ ${fmtBRL(v.precoVista||v.precoCartao)}</span>` : '<span style="font-size:11px;color:var(--muted)">sem preço</span>'}
+      <button class="var-list-del" onclick="removeVariante('${key}',event)" title="Remover">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function addVariante(){
+  const corSel = g('varAddCor');
+  const memSel = g('varAddMem');
+  if(!corSel.value || !memSel.value){
+    toast('Cadastre cores e memórias antes.', 'error'); return;
+  }
+  const key = corSel.value + '_' + memSel.value;
+  if(varianteData[key]){
+    toast('Essa combinação já foi adicionada.', 'error'); return;
+  }
+  varianteData[key] = {precoVista:'', precoCartao:'', freteGratis:false, parcelas:[]};
+  renderVarList();
+  renderVarPrices();
+}
+
+function removeVariante(key, event){
+  event.stopPropagation();
+  const v = varianteData[key];
+  const hasPricing = v && (v.precoVista || v.precoCartao || (v.parcelas||[]).length);
+  if(hasPricing && !confirm('Esta variante tem preços cadastrados. Remover mesmo assim?')) return;
+  delete varianteData[key];
+  renderVarList();
+  renderVarPrices();
+}
+
+// ══════════════════════
+// VARIANTE PRICE LIST
+// ══════════════════════
+function renderVarPrices(){
+  const c=g('variantePriceList');
+  const ks=Object.keys(varianteData);
+  if(!ks.length){ c.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">③</div><p style="font-size:14px">Vá para a aba <strong>③ Cores &amp; Memórias</strong> e marque as combinações disponíveis.</p></div>'; return }
+  c.innerHTML=ks.map(key=>{
+    const [cId,mId]=key.split('_');
+    const cor=ST.cores.find(x=>x.id===cId)||{nome:'?',hex:'#ccc'};
+    const mem=ST.memorias.find(x=>x.id===mId)||{cap:'?'};
+    const v=varianteData[key];
+    return `
+    <div class="variant-item" id="vi_${key}">
+      <div class="variant-header" onclick="togVariant('${key}')">
+        <div class="variant-header-left">
+          <div class="variant-colordot" style="background:${cor.hex}"></div>
+          <span class="variant-name">${cor.nome}</span>
+          <span class="variant-mem">· ${mem.cap}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${v.precoVista?`<span class="variant-pricepreview">R$ ${fmtBRL(v.precoVista)}</span>`:'<span style="font-size:11px;color:var(--muted)">sem preço</span>'}
+          <button onclick="removeVariante('${key}',event)" title="Remover esta variante" style="background:var(--red);border:none;color:#fff;width:22px;height:22px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">×</button>
+          <svg class="variant-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="variant-body">
+        <div class="row3" style="margin-bottom:18px">
+          <div><label class="field-label" style="font-size:10px;margin-bottom:6px">Preço à Vista (Pix/Dinheiro) <span class="required">*</span></label>
+            <div class="input-prefix"><span class="prefix" style="font-size:13px">R$</span><input class="field-input ifield" type="number" step="0.01" value="${v.precoVista||''}" placeholder="0,00" oninput="upVar('${key}','precoVista',this.value)"></div>
+          </div>
+          <div><label class="field-label" style="font-size:10px;margin-bottom:6px">Preço no Cartão (base para parcelas)</label>
+            <div class="input-prefix"><span class="prefix" style="font-size:13px">R$</span><input class="field-input ifield" type="number" step="0.01" value="${v.precoCartao||''}" placeholder="0,00" oninput="upVar('${key}','precoCartao',this.value)"></div>
+          </div>
+          <div><label class="field-label" style="font-size:10px;margin-bottom:6px">Frete Grátis nesta variante?</label>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+              <div class="toggle ${v.freteGratis?'on':''}" id="ft_${key}" onclick="togVarFrete('${key}')"><div class="toggle-dot"></div></div>
+              <span id="ftl_${key}" style="font-size:13px">${v.freteGratis?'Sim':'Não'}</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--wine);font-weight:600;margin-bottom:10px">💳 Parcelamento</div>
+        <div class="parc-grid parc-grid-head"><div>Parcelas</div><div>Tipo</div><div>Taxa % a.m.</div><div>Valor/parcela</div><div></div></div>
+        <div id="parc_${key}">${renderParcHTML(key)}</div>
+        <button class="add-parc-btn" onclick="addParc('${key}')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar faixa de parcelamento</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function removeVariante(key, event){
+  event.stopPropagation();
+  const v = varianteData[key];
+  const hasPricing = v && (v.precoVista || v.precoCartao || (v.parcelas||[]).length);
+  if(hasPricing && !confirm('Esta variante tem preços cadastrados. Remover mesmo assim?')) return;
+  delete varianteData[key];
+  renderVarPrices();
+  // Also refresh matrix if it's rendered
+  // matrix removed — renderVarList already called above
+}
+
+function renderParcHTML(key){
+  const v=varianteData[key];
+  if(!v||!v.parcelas.length) return '<p style="color:var(--muted);font-size:12px;padding:4px 0 10px">Nenhuma faixa. Clique em "Adicionar" abaixo.</p>';
+  const base=parseFloat(v.precoCartao)||parseFloat(v.precoVista)||0;
+  return v.parcelas.map((p,i)=>{
+    const prev=base?`R$ ${fmtBRL(calcParc(base,p.n,p.tipo==='sem_juros'?0:p.taxa))}/parc.`:'—';
+    return `<div class="parc-grid">
+      <input class="parc-input" type="number" min="1" max="24" value="${p.n}" oninput="upParc('${key}',${i},'n',this.value)">
+      <select class="parc-input" onchange="upParc('${key}',${i},'tipo',this.value)">
+        <option value="sem_juros" ${p.tipo==='sem_juros'?'selected':''}>Sem juros</option>
+        <option value="com_juros" ${p.tipo==='com_juros'?'selected':''}>Com juros</option>
+      </select>
+      <input class="parc-input" type="number" step="0.01" value="${p.taxa||0}" ${p.tipo==='sem_juros'?'disabled':''} oninput="upParc('${key}',${i},'taxa',this.value)">
+      <span style="font-size:11px;color:var(--muted);padding:0 4px">${prev}</span>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="delParc('${key}',${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`;
+  }).join('');
+}
+
+function togVariant(key){ const el=g('vi_'+key); el.classList.toggle('expanded') }
+function upVar(key,field,value){
+  if(!varianteData[key]) return;
+  varianteData[key][field]=field.startsWith('preco')?parseFloat(value)||'':value;
+  g('parc_'+key).innerHTML=renderParcHTML(key);
+  const el=g('vi_'+key); if(el){ const pp=el.querySelector('.variant-pricepreview, span.variant-pricepreview'); const pr=varianteData[key].precoVista; const hdr=el.querySelector('.variant-header > div:last-child'); if(hdr) hdr.innerHTML=(pr?`<span class="variant-pricepreview">R$ ${fmtBRL(pr)}</span>`:'<span style="font-size:11px;color:var(--muted)">sem preço</span>')+'<svg class="variant-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2;'+(el.classList.contains('expanded')?'transform:rotate(180deg)':'')+' flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>' }
+}
+function togVarFrete(key){ if(!varianteData[key]) return; varianteData[key].freteGratis=!varianteData[key].freteGratis; const t=g('ft_'+key); t.className='toggle'+(varianteData[key].freteGratis?' on':''); g('ftl_'+key).textContent=varianteData[key].freteGratis?'Sim':'Não' }
+function addParc(key){ if(!varianteData[key]) return; const last=varianteData[key].parcelas.slice(-1)[0]; varianteData[key].parcelas.push({n:last?parseInt(last.n)+1:1,tipo:'sem_juros',taxa:0}); g('parc_'+key).innerHTML=renderParcHTML(key) }
+function delParc(key,i){ varianteData[key].parcelas.splice(i,1); g('parc_'+key).innerHTML=renderParcHTML(key) }
+function upParc(key,i,field,value){
+  const p=varianteData[key].parcelas[i]; if(!p) return;
+  p[field]=field==='n'?parseInt(value)||1:(field==='taxa'?parseFloat(value)||0:value);
+  g('parc_'+key).innerHTML=renderParcHTML(key);
+}
+function calcParc(total,n,taxa){ n=parseInt(n)||1; taxa=parseFloat(taxa)||0; if(!taxa) return (total/n).toFixed(2); const r=taxa/100; return (total*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1)).toFixed(2) }
+
+// ══════════════════════
+// SAVE PRODUCT
+// ══════════════════════
+function saveProduct(){
+  const modelo=gv('pModelo');
+  if(!modelo){ toast('Informe o modelo.','error'); return }
+  if(!Object.keys(varianteData).length){ toast('Selecione cores e memórias na aba ③.','error'); switchTab('tab-variantes'); return }
+  if(!Object.values(varianteData).some(v=>v.precoVista)){ toast('Informe o preço em ao menos uma variante.','error'); switchTab('tab-precos'); return }
+  const cSel=g('pCondicao'); const cBadge=cSel.options[cSel.selectedIndex]?.getAttribute('data-badge')||'badge-blue';
+  const prod={ id:editId||u(), marca:g('pMarca').value, modelo, descricao:gv('pDescricao'), condicao:cSel.value, condicaoBadge:cBadge, freteGratis:freightOn, variantes:JSON.parse(JSON.stringify(varianteData)), images:prodImgs, tags:prodTags, status:g('pStatus').value, updatedAt:new Date().toISOString() };
+  if(editId){ const i=ST.produtos.findIndex(p=>p.id===editId); if(i!==-1) ST.produtos[i]=prod } else ST.produtos.push(prod);
+  saveST(); renderProdTable(); closeProductModal(); toast((editId?'Produto atualizado!':'Produto cadastrado!'),'success');
+}
+
+// ══════════════════════
+// TOAST
+// ══════════════════════
+function toast(msg,type=''){
+  const c=g('toastContainer'), t=document.createElement('div'); t.className='toast '+type;
+  const ico=type==='success'?'<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>':type==='error'?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>':'';
+  t.innerHTML=ico+msg; c.appendChild(t); setTimeout(()=>t.remove(),3500);
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeProductModal(); closeColorModal(); closeSidebar() } });
+loadST();
+
+// ══════════════════════
+// MOBILE SIDEBAR
+// ══════════════════════
+function toggleSidebar(){
+  const sb = g('sidebar'), ov = g('sidebarOverlay'), hb = g('hamburger');
+  const open = sb.classList.toggle('open');
+  ov.classList.toggle('visible', open);
+  hb.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+function closeSidebar(){
+  g('sidebar').classList.remove('open');
+  g('sidebarOverlay').classList.remove('visible');
+  g('hamburger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Auto-close sidebar on nav tap (mobile)
+const _goTo = goTo;
+goTo = function(page){
+  _goTo(page);
+  if(window.innerWidth <= 768) closeSidebar();
+};
+
+// Close sidebar on resize to desktop
+window.addEventListener('resize', () => {
+  if(window.innerWidth > 768) closeSidebar();
+});
+</script>
+</body>
+</html>
