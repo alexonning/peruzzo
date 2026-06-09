@@ -1,36 +1,158 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Peruzzo Imports — Web App
 
-## Getting Started
+Esqueleto Next.js 15 (App Router) + TypeScript + Tailwind v4 + Supabase para a
+loja **Peruzzo Imports** (landing + painel administrativo).
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Camada | Ferramenta |
+|---|---|
+| Framework | Next.js 15 (App Router, RSC, Server Actions) |
+| Linguagem | TypeScript |
+| Estilo | Tailwind CSS v4 (tokens via `@theme` em `globals.css`) |
+| Fontes | `next/font/google` — Cormorant Garamond + Jost |
+| Banco / Auth / Storage | Supabase (PostgreSQL) |
+| Formulários | React Hook Form + Zod |
+| Estado | Zustand (quando precisar) |
+| Ícones | lucide-react |
+| Utils | clsx + tailwind-merge (`cn()` em `lib/utils.ts`) |
+
+## Estrutura
+
+```
+app/
+├─ (loja)/            → landing pública (header, hero, vitrine, footer)
+│  ├─ layout.tsx
+│  └─ page.tsx
+├─ admin/
+│  ├─ login/page.tsx          → tela de login
+│  ├─ logout/route.ts         → POST de logout
+│  └─ (dashboard)/
+│     ├─ layout.tsx           → sidebar + topbar + guard de sessão
+│     ├─ page.tsx             → dashboard
+│     ├─ produtos/page.tsx
+│     └─ configuracoes/page.tsx
+├─ globals.css        → @theme com paleta Peruzzo (--wine, --cream, --gold...)
+└─ layout.tsx         → root, importa fontes
+components/
+├─ loja/              → Header, Hero, Footer
+└─ ui/                → componentes reutilizáveis
+lib/
+├─ supabase/
+│  ├─ client.ts       → cliente browser
+│  ├─ server.ts       → cliente server (RSC / Server Actions)
+│  └─ middleware.ts   → atualização de sessão
+└─ utils.ts           → cn(), fmtBRL()
+middleware.ts         → protege /admin/*
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Rodando localmente
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env.local   # preencher com credenciais Supabase
+npm run dev                  # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Rotas:
+- `/` — landing pública
+- `/admin/login` — login
+- `/admin` — dashboard (protegido)
+- `/admin/produtos`, `/admin/configuracoes`
 
-## Learn More
+## Configurando o Supabase
 
-To learn more about Next.js, take a look at the following resources:
+1. Crie o projeto em <https://supabase.com/dashboard>.
+2. Em **Settings → API**, copie `Project URL` e `anon public key` para `.env.local`.
+3. Em **Authentication → Users**, convide o e-mail do administrador.
+4. Aplique o schema sugerido abaixo em **SQL Editor**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Schema sugerido (espelha o `localStorage` do HTML antigo)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```sql
+create table public.marcas (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  ativo boolean not null default true,
+  created_at timestamptz not null default now()
+);
 
-## Deploy on Vercel
+create table public.memorias (
+  id uuid primary key default gen_random_uuid(),
+  capacidade text not null,
+  sigla text not null unique,
+  ativo boolean not null default true
+);
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+create table public.cores (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  hex text not null,
+  ativo boolean not null default true
+);
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+create table public.condicoes (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  badge text not null default 'badge-blue',
+  ativo boolean not null default true
+);
+
+create table public.produtos (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  marca_id uuid references public.marcas(id),
+  memoria_id uuid references public.memorias(id),
+  cor_id uuid references public.cores(id),
+  condicao_id uuid references public.condicoes(id),
+  preco numeric(10,2) not null,
+  descricao text,
+  imagens text[] not null default '{}',
+  ativo boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+create table public.frete_faixas (
+  id uuid primary key default gen_random_uuid(),
+  cep_inicio text not null,
+  cep_fim text,
+  descricao text,
+  tipo text not null check (tipo in ('gratis','fixo','consulta')),
+  valor numeric(10,2) not null default 0
+);
+
+-- RLS: leitura pública para a vitrine, escrita só para admins autenticados
+alter table public.produtos enable row level security;
+alter table public.marcas enable row level security;
+alter table public.memorias enable row level security;
+alter table public.cores enable row level security;
+alter table public.condicoes enable row level security;
+alter table public.frete_faixas enable row level security;
+
+create policy "ler produtos ativos" on public.produtos
+  for select using (ativo = true);
+
+create policy "admin grava produtos" on public.produtos
+  for all using (auth.role() = 'authenticated')
+        with check (auth.role() = 'authenticated');
+```
+
+### Storage
+
+Crie um bucket `produtos` (público). Salve os paths em `produtos.imagens`.
+
+## Próximos passos
+
+- [ ] CRUD real de Produtos (RHF + Zod + Server Actions)
+- [ ] Upload de imagens para Supabase Storage
+- [ ] Filtros da vitrine (marca, memória, cor, faixa de preço)
+- [ ] Página `/produto/[id]` com WhatsApp
+- [ ] Validação de CEP usando `frete_faixas`
+- [ ] Analytics (Vercel Analytics + GA4)
+- [ ] Deploy: `vercel` (env vars no painel)
+
+## Notas
+
+- Cores e fontes vieram do `:root` dos HTMLs originais — qualquer ajuste vira
+  um token novo em `app/globals.css`.
+- Os HTMLs originais ficam em `../administracao (1).html` e
+  `../peruzzo-imports.html` como referência visual.

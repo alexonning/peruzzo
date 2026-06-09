@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
+/* ──────────────────────────────────────────
+   Peruzzo Imports — Design Tokens
+   Migrados de :root dos HTMLs originais.
+   ────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --cream: #f5ede3;
+  --cream-dark: #ecddd0;
+  --wine: #6b1a1a;
+  --wine-light: #8a2424;
+  --wine-dark: #4a1010;
+  --charcoal: #2a2020;
+  --gold: #b8860b;
+  --text: #2a1a1a;
+  --muted: #8a7070;
+  --white: #fdfaf7;
+  --shadow: rgba(107, 26, 26, 0.15);
+
+  /* status (admin) */
+  --green: #2d7a2d;
+  --red: #c0392b;
+  --blue: #1a4a8a;
+
+  --sidebar: 240px;
 }
 
+/* Expõe os tokens ao Tailwind v4 (text-wine, bg-cream, etc.) */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: var(--cream);
+  --color-cream-dark: var(--cream-dark);
+  --color-wine: var(--wine);
+  --color-wine-light: var(--wine-light);
+  --color-wine-dark: var(--wine-dark);
+  --color-charcoal: var(--charcoal);
+  --color-gold: var(--gold);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-paper: var(--white);
+
+  --color-success: var(--green);
+  --color-danger: var(--red);
+  --color-info: var(--blue);
+
+  --font-serif: var(--font-cormorant);
+  --font-sans: var(--font-jost);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  font-family: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* helpers usados no header/admin */
+.font-display {
+  font-family: var(--font-cormorant), Georgia, serif;
 }
