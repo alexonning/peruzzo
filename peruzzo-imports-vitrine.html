@@ -1423,7 +1423,7 @@
   <h1>
     A melhor loja de<br><em>iPhones do Paraná</em>
   </h1>
-  <p>Lacrados e semi novos premium com garantia e entrega em Cascavel e região. Parcelamos em 12x no cartão.</p>
+  <p>Lacrados e semi novos premium com garantia e entrega em Cascavel e região. Parcelamos em 18x no cartão.</p>
   <div class="hero-ctas">
     <a href="#produtos" class="btn-primary">Ver Produtos</a>
     <a href="https://wa.me/5545999999999" target="_blank" class="btn-outline">Falar no WhatsApp</a>
@@ -1439,7 +1439,7 @@
     </div>
     <div class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      12x no Cartão
+      18x no Cartão
     </div>
     <div class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1566,7 +1566,7 @@
   <div class="trust-strip-item">
     <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
     <div>
-      <strong>Parcele em 12x</strong>
+      <strong>Parcele em 18x</strong>
       <span>sem burocracia no cartão</span>
     </div>
   </div>
@@ -1644,7 +1644,7 @@
       <div class="modal-prices">
         <div class="modal-price-pix" id="modalPix">💰 À vista: R$ 4.490,00 (Pix/Dinheiro)</div>
         <div class="modal-price-main" id="modalPrice"><span class="price-currency">R$</span><span id="modalPriceVal">4.590,00</span></div>
-        <div class="modal-price-installment" id="modalInstallment">ou <strong>12x de R$ 435,41</strong> no cartão de crédito</div>
+        <div class="modal-price-installment" id="modalInstallment">ou <strong>18x de R$ 435,41</strong> no cartão de crédito</div>
       </div>
 
       <div class="modal-details" id="modalDetails"></div>
@@ -1654,7 +1654,7 @@
         <div class="payment-methods">
           <div class="payment-method">💵 Dinheiro</div>
           <div class="payment-method">📱 Pix</div>
-          <div class="payment-method">💳 Cartão Crédito 12x</div>
+          <div class="payment-method">💳 Cartão Crédito 18x</div>
           <div class="payment-method">💳 Cartão Débito</div>
         </div>
         <p style="font-size:11px;color:var(--muted);margin-top:10px">⚠️ Não realizamos pagamentos por boleto bancário.</p>
@@ -1855,7 +1855,7 @@ function renderProducts(list) {
         <div class="product-price-area">
           <div class="price-pix">💰 À vista: R$ ${formatPrice(Math.round(p.price * 0.98))}</div>
           <div class="price-main"><span class="price-currency">R$</span>${formatPrice(p.price)}</div>
-          <div class="price-installment">ou <strong>12x de R$ ${formatPrice(p.installments)}</strong></div>
+          <div class="price-installment">ou <strong>18x de R$ ${formatPrice(p.installments)}</strong></div>
           <div class="shipping-info">
             <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
             ${p.freeShipping ? '<span class="shipping-free">Frete Grátis</span>' : 'Entrega em Cascavel'}
@@ -1920,7 +1920,7 @@ function openModal(id) {
   document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalSpec').textContent = p.spec;
   document.getElementById('modalPriceVal').textContent = formatPrice(p.price);
-  document.getElementById('modalInstallment').innerHTML = `ou <strong>12x de R$ ${formatPrice(p.installments)}</strong> no cartão de crédito`;
+  document.getElementById('modalInstallment').innerHTML = `ou <strong>18x de R$ ${formatPrice(p.installments)}</strong> no cartão de crédito`;
   document.getElementById('modalPix').textContent = `💰 À vista: R$ ${formatPrice(Math.round(p.price * 0.98))} (Pix/Dinheiro)`;
 
   const details = [
@@ -1928,7 +1928,7 @@ function openModal(id) {
     ['Armazenamento', p.storage.toUpperCase()],
     ['Garantia', p.condition === 'lacrado' ? '1 Ano Apple (lacrado)' : 'Garantia Peruzzo'],
     ['Entrega', p.freeShipping ? '✅ Frete Grátis' : 'Cascavel e Região'],
-    ['Pagamento', 'Pix, Cartão (12x), Dinheiro'],
+    ['Pagamento', 'Pix, Cartão (18x), Dinheiro'],
   ];
 
   document.getElementById('modalDetails').innerHTML = details.map(([l, v]) =>

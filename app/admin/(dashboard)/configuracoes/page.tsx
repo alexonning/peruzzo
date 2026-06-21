@@ -1,13 +1,12 @@
-export default function ConfiguracoesPage() {
-  return (
-    <div className="bg-paper border border-cream-dark rounded-xl p-8">
-      <h2 className="font-display text-xl font-semibold text-charcoal mb-2">
-        Configurações
-      </h2>
-      <p className="text-sm text-muted">
-        Cores, marcas, memórias, condições e faixas de CEP — migrar do{" "}
-        <code>localStorage</code> do HTML antigo para tabelas Supabase.
-      </p>
-    </div>
-  );
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Config } from "@/lib/types";
+import { ConfigForm } from "./config-form";
+
+export const dynamic = "force-dynamic";
+
+export default async function ConfiguracoesPage() {
+  const sb = await createSupabaseServerClient();
+  const { data } = await sb.from("config").select("*").eq("id", 1).maybeSingle();
+  const cfg = (data as Config | null) ?? null;
+  return <ConfigForm cfg={cfg} />;
 }

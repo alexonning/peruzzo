@@ -82,6 +82,15 @@ create table if not exists public.config (
   updated_at  timestamptz not null default now()
 );
 
+-- colunas extras (reentrante; seguro re-rodar)
+alter table public.config add column if not exists doc       text;
+alter table public.config add column if not exists endereco  text;
+alter table public.config add column if not exists cidade    text default 'Cascavel';
+alter table public.config add column if not exists estado    text default 'PR';
+alter table public.config add column if not exists cep       text;
+alter table public.config add column if not exists pagamentos jsonb not null default
+  '{"pix":true,"dinheiro":true,"credito":true,"debito":true,"boleto":false}'::jsonb;
+
 -- ── TRIGGER updated_at ───────────────────────────────────────
 create or replace function public.touch_updated_at()
 returns trigger language plpgsql as $$
@@ -178,3 +187,39 @@ insert into public.config (id, nome, instagram, banner) values
   (1, 'Peruzzo Imports', 'peruzzo_imports',
    '📍 Entregamos em Cascavel e Região · Atendimento via WhatsApp')
 on conflict (id) do nothing;
+
+-- ── VARIANTES (cor + memória com preços tipo Mercado Livre) ──
+create table if not exists public.produto_variantes (
+  id                  uuid primary key default gen_random_uuid(),
+  produto_id          uuid not null references public.produtos(id) on delete cascade,
+  cor_id              uuid references public.cores(id)    on delete set null,
+  memoria_id          uuid references public.memorias(id) on delete set null,
+  preco_vista         numeric(10,2) not null check (preco_vista >= 0),
+  preco_cartao        numeric(10,2) check (preco_cartao is null or preco_cartao >= 0),
+  parcelas_sem_juros  integer not null default 1  check (parcelas_sem_juros >= 1),
+  parcelas_com_juros  integer not null default 12 check (parcelas_com_juros >= 0),
+  frete_gratis        boolean not null default false,
+  estoque             integer not null default 1 check (estoque >= 0),
+  ativo               boolean not null default true,
+  created_at          timestamptz not null default now(),
+  unique (produto_id, cor_id, memoria_id)
+);
+
+-- preço base ("por") e preço "de" (riscado) por variante — reentrante
+alter table public.produto_variantes
+  add column if not exists preco    numeric(10,2);
+alter table public.produto_variantes
+  add column if not exists preco_de numeric(10,2);
+
+create index if not exists produto_variantes_produto_idx
+  on public.produto_variantes (produto_id);
+
+alter table public.produto_variantes enable row level security;
+
+drop policy if exists "produto_variantes_read_public" on public.produto_variantes;
+create policy "produto_variantes_read_public" on public.produto_variantes
+  for select to anon, authenticated using (true);
+
+drop policy if exists "produto_variantes_write_auth" on public.produto_variantes;
+create policy "produto_variantes_write_auth" on public.produto_variantes
+  for all to authenticated using (true) with check (true);

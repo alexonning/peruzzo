@@ -3,21 +3,38 @@ import { z } from "zod";
 export const produtoSchema = z.object({
   nome: z.string().trim().min(2, "Nome obrigatório"),
   marca_id: z.string().uuid().nullable().optional(),
-  memoria_id: z.string().uuid().nullable().optional(),
-  cor_id: z.string().uuid().nullable().optional(),
   condicao_id: z.string().uuid().nullable().optional(),
-  preco: z.coerce.number().min(0, "Preço inválido"),
-  preco_de: z.coerce.number().min(0).nullable().optional(),
   descricao: z.string().trim().nullable().optional(),
-  estoque: z.coerce.number().int().min(0).default(1),
+  estoque: z.coerce.number().int("Estoque deve ser inteiro").min(0).default(1),
   destaque: z.coerce.boolean().default(false),
   ativo: z.coerce.boolean().default(true),
-  imagens: z.array(z.string()).default([]),
+  imagens: z.array(z.string().url()).max(8, "Máximo 8 fotos").default([]),
+  // produtos.preco é NOT NULL no DB; preços reais vivem em produto_variantes.
+  // Mantemos como 0 no nível do produto pra não violar a constraint.
+  preco: z.coerce.number().min(0).default(0),
+  preco_de: z.coerce.number().min(0).nullable().optional(),
 });
 
 export type ProdutoInput = z.infer<typeof produtoSchema>;
 
-/** Lê um FormData e devolve o objeto pronto para validação. */
+export const varianteSchema = z.object({
+  id: z.string().uuid().optional(),
+  cor_id: z.string().uuid().nullable(),
+  memoria_id: z.string().uuid().nullable(),
+  preco: z.coerce.number().min(0).nullable(),
+  preco_de: z.coerce.number().min(0).nullable(),
+  preco_vista: z.coerce.number().min(0),
+  preco_cartao: z.coerce.number().min(0).nullable(),
+  parcelas_sem_juros: z.coerce.number().int().min(1).default(1),
+  parcelas_com_juros: z.coerce.number().int().min(0).default(12),
+  frete_gratis: z.coerce.boolean().default(false),
+  estoque: z.coerce.number().int().min(0).default(1),
+});
+
+export type VarianteInput = z.infer<typeof varianteSchema>;
+
+export const variantesArraySchema = z.array(varianteSchema);
+
 export function produtoFromFormData(fd: FormData): unknown {
   const get = (k: string) => {
     const v = fd.get(k);
@@ -26,11 +43,7 @@ export function produtoFromFormData(fd: FormData): unknown {
   return {
     nome: get("nome"),
     marca_id: get("marca_id"),
-    memoria_id: get("memoria_id"),
-    cor_id: get("cor_id"),
     condicao_id: get("condicao_id"),
-    preco: get("preco"),
-    preco_de: get("preco_de"),
     descricao: get("descricao"),
     estoque: get("estoque") ?? 1,
     destaque: fd.get("destaque") === "on",

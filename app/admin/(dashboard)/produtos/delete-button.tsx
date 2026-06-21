@@ -14,7 +14,7 @@ export function DeleteButton({ id, nome }: { id: string; nome: string }) {
         if (!confirm(`Excluir "${nome}"? Essa ação não pode ser desfeita.`)) return;
         start(() => deleteProduto(id));
       }}
-      className="text-danger text-xs uppercase tracking-[1.5px] font-semibold hover:underline disabled:opacity-50"
+      className="flex-1 md:flex-none bg-danger/10 md:bg-transparent text-danger text-center py-2 md:py-0 md:px-0 rounded-md md:rounded-none text-xs uppercase tracking-[1.5px] font-semibold hover:underline disabled:opacity-50"
     >
       {pending ? "Excluindo..." : "Excluir"}
     </button>

@@ -6,9 +6,9 @@ export function Footer() {
       id="contato"
       className="mt-auto border-t border-cream-dark bg-wine-dark text-cream"
     >
-      <div className="mx-auto max-w-6xl px-6 py-12 grid gap-8 md:grid-cols-3">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 py-10 sm:py-12 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
         <div>
-          <p className="font-display text-2xl font-bold tracking-[3px]">
+          <p className="font-display text-xl sm:text-2xl font-bold tracking-[3px]">
             PERUZZO
           </p>
           <p className="text-[10px] tracking-[4px] text-cream-dark mt-1">
@@ -53,7 +53,7 @@ export function Footer() {
           </p>
         </div>
       </div>
-      <div className="border-t border-cream/10 py-4 text-center text-[11px] text-cream/50 tracking-[2px] uppercase">
+      <div className="border-t border-cream/10 py-4 text-center text-[10px] sm:text-[11px] text-cream/50 tracking-[2px] uppercase px-4">
         © {new Date().getFullYear()} Peruzzo Imports
       </div>
     </footer>

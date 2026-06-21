@@ -52,6 +52,53 @@ export type ProdutoComJoins = Produto & {
   memoria: Pick<Memoria, "id" | "capacidade" | "sigla"> | null;
   cor: Pick<Cor, "id" | "nome" | "hex"> | null;
   condicao: Pick<Condicao, "id" | "nome" | "badge"> | null;
+  variantes?: ProdutoVarianteComJoins[];
+};
+
+export type ProdutoVariante = {
+  id: string;
+  produto_id: string;
+  cor_id: string | null;
+  memoria_id: string | null;
+  preco: number | null;       // preço "por" (base)
+  preco_de: number | null;    // riscado
+  preco_vista: number;        // Pix
+  preco_cartao: number | null;
+  parcelas_sem_juros: number;
+  parcelas_com_juros: number;
+  frete_gratis: boolean;
+  estoque: number;
+  ativo: boolean;
+  created_at: string;
+};
+
+export type ProdutoVarianteComJoins = ProdutoVariante & {
+  cor: Pick<Cor, "id" | "nome" | "hex"> | null;
+  memoria: Pick<Memoria, "id" | "capacidade" | "sigla"> | null;
+};
+
+export type Pagamentos = {
+  pix: boolean;
+  dinheiro: boolean;
+  credito: boolean;
+  debito: boolean;
+  boleto: boolean;
+};
+
+export type Config = {
+  id: number;
+  nome: string;
+  doc: string | null;
+  endereco: string | null;
+  cidade: string | null;
+  estado: string | null;
+  cep: string | null;
+  whatsapp: string | null;
+  instagram: string | null;
+  banner: string | null;
+  cep_msg: string | null;
+  pagamentos: Pagamentos;
+  updated_at: string;
 };
 
 export type FreteFaixa = {
